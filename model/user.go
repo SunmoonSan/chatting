@@ -1,7 +1,7 @@
 /*
 @desc : Created by San on 2019/10/30 22:55
 */
-package module
+package model
 
 import "time"
 

@@ -4,7 +4,7 @@
 package service
 
 import (
-	"chatting/module"
+	"chatting/model"
 	"chatting/util"
 	"errors"
 	"fmt"
@@ -15,8 +15,8 @@ import (
 type UserService struct {
 }
 
-func (s *UserService) Register(mobile, plainpwd, nicknane, avatar, sex string) (user module.User, err error) {
-	tmp := module.User{}
+func (s *UserService) Register(mobile, plainpwd, nicknane, avatar, sex string) (user model.User, err error) {
+	tmp := model.User{}
 	_, err = DbEngin.Where("mobile=?", mobile).Get(&tmp)
 	if err != nil {
 		return tmp, err
@@ -40,6 +40,19 @@ func (s *UserService) Register(mobile, plainpwd, nicknane, avatar, sex string) (
 
 }
 
-func (s *UserService) Login(mobile, plainpwd string) (user module.User, err error) {
+func (s *UserService) Login(mobile, plainpwd string) (user model.User, err error) {
+	tmp := model.User{}
+	DbEngin.Where("mobile=?", mobile).Get(&tmp)
+	if tmp.Id == 0 {
+		return tmp, errors.New("该用户不存在")
+	}
+
+	if !util.ValidatePasswd(plainpwd, tmp.Salt, tmp.Passwd) {
+		return tmp, errors.New("密码不正确")
+	}
+
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	token := util.Md5Encode(str)
+	tmp.Token = token
 
 }
