@@ -1,6 +1,3 @@
-/*
-@desc : Created by San on 2019/10/31 01:04
-*/
 package util
 
 import (
