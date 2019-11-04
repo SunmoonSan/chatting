@@ -35,24 +35,33 @@ func (s *UserService) Register(mobile, plainpwd, nicknane, avatar, sex string) (
 	tmp.Passwd = util.MakePasswd(plainpwd, tmp.Salt)
 	tmp.Createat = time.Now()
 
-	_, err = DbEngin.InsertOne(&tmp)
-	return user, nil
+	// token 可以是一个随机数
+	tmp.Token = fmt.Sprintf("%08", rand.Int31())
 
+	_, err = DbEngin.InsertOne(&tmp)
+	return user, err
 }
 
-func (s *UserService) Login(mobile, plainpwd string) (user model.User, err error) {
+func (s *UserService) Login(
+	mobile, //手机
+	plainpwd string) (user model.User, err error) {
+
+	//首先通过手机号查询用户
 	tmp := model.User{}
-	DbEngin.Where("mobile=?", mobile).Get(&tmp)
+	DbEngin.Where("mobile = ?", mobile).Get(&tmp)
+	//如果没有找到
 	if tmp.Id == 0 {
 		return tmp, errors.New("该用户不存在")
 	}
-
+	//查询到了比对密码
 	if !util.ValidatePasswd(plainpwd, tmp.Salt, tmp.Passwd) {
 		return tmp, errors.New("密码不正确")
 	}
-
+	//刷新token,安全
 	str := fmt.Sprintf("%d", time.Now().Unix())
-	token := util.Md5Encode(str)
+	token := util.MD5Encode(str)
 	tmp.Token = token
-
+	//返回数据
+	DbEngin.ID(tmp.Id).Cols("token").Update(&tmp)
+	return tmp, nil
 }
