@@ -57,3 +57,41 @@ func (service *ContactService) AddFriend(userid, dstid int64) error {
 		}
 	}
 }
+
+// 查找群
+func (service *ContactService) SearchCommunity(userId int64) []model.Community {
+	contacts := make([]model.Contact, 0)
+	comIds := make([]int64, 0)
+
+	DbEngin.Where("ownerid = ? and cate = ?", userId, model.CONCAT_CATE_COMUNITY).Find(&contacts)
+	for _, v := range contacts {
+		comIds = append(comIds, v.Dstobj)
+	}
+
+	coms := make([]model.Community, 0)
+	if len(comIds) == 0 {
+		return coms
+	}
+
+	DbEngin.In("id", comIds).Find(&coms)
+	return coms
+
+}
+
+// 查找好友
+func (service *ContactService) SearchFriend(userId int64) []model.User {
+	contacts := make([]model.Contact, 0)
+	objIds := make([]int64, 0)
+	DbEngin.Where("ownerid = ? and cate = ?", userId, model.CONCAT_CATE_USER).Find(&contacts)
+	for _, v := range contacts {
+		objIds = append(objIds, v.Dstobj)
+	}
+
+	coms := make([]model.User, 0)
+	if len(objIds) == 0 {
+		return coms
+	}
+
+	DbEngin.In("id", objIds).Find(&coms)
+	return coms
+}
