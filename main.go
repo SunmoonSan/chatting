@@ -31,6 +31,8 @@ func main() {
 	http.HandleFunc("/user/register", ctrl.UserRegister)
 	http.HandleFunc("/contact/loadcommunity", ctrl.LoadCommunity)
 	http.HandleFunc("/contact/loadfriend", ctrl.LoadFriend)
+
+	http.HandleFunc("/contact/addfriend", ctrl.Addfriend)
 	http.Handle("/asset/", http.FileServer(http.Dir(".")))
 	RegisterView()
 	port := "8080"

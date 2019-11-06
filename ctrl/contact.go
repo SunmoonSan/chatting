@@ -27,3 +27,16 @@ func LoadCommunity(w http.ResponseWriter, req *http.Request) {
 	communities := contactService.SearchCommunity(arg.Userid)
 	util.RespOKList(w, communities, len(communities))
 }
+
+func Addfriend(w http.ResponseWriter, req *http.Request) {
+	var arg args.ContactArg
+	util.Bind(req, &arg)
+
+	err := contactService.AddFriend(arg.Userid, arg.Dstid)
+
+	if err != nil {
+		util.RespFail(w, err.Error())
+	} else {
+		util.RespOK(w, nil, "好友添加成功")
+	}
+}
