@@ -78,6 +78,32 @@ func (service *ContactService) SearchCommunity(userId int64) []model.Community {
 
 }
 
+func (service *ContactService) SearchCommunityIds(userId int64) (comIds []int64) {
+	contacts := make([]model.Contact, 0)
+	comIds = make([]int64, 0)
+	DbEngin.Where("ownerid = ? and cate = ?", userId, model.CONCAT_CATE_COMUNITY).Find(&contacts)
+	for _, v := range contacts {
+		comIds = append(comIds, v.Dstobj)
+	}
+	return comIds
+}
+
+func (service *ContactService) JoinCommunity(userId, comId int64) error {
+	cot := model.Contact{
+		Ownerid: userId,
+		Dstobj:  comId,
+		Cate:    model.CONCAT_CATE_COMUNITY,
+	}
+	DbEngin.Get(&cot)
+	if cot.Id == 0 {
+		cot.Createat = time.Now()
+		_, err := DbEngin.InsertOne(cot)
+		return err
+	} else {
+		return nil
+	}
+}
+
 // 查找好友
 func (service *ContactService) SearchFriend(userId int64) []model.User {
 	contacts := make([]model.Contact, 0)
